@@ -3,64 +3,107 @@ package com.idat.mayoservicioprueba.controller;
 import com.idat.mayoservicioprueba.model.Producto;
 import com.idat.mayoservicioprueba.service.ProductoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api")/*url base*/
 public class ProductoController {
     @Autowired
     ProductoService service;
 
+    /*subrecurso*/
     @GetMapping("/listar") //Http Method GET
-    public ResponseEntity<?> listar() {
-        List<Producto> itemsInstructor=service.listarProductos();
-        return new ResponseEntity<>(itemsInstructor, HttpStatus.OK); //Http status code
+    public List<Producto> listar() {
+        return service.listarProductos();
     }
 
     @PostMapping("/agregar") //Http Method POST
     public ResponseEntity<?> agregar(@RequestBody Producto producto) {
-        service.guardarProducto(producto);
-        return new ResponseEntity<Producto>(producto,HttpStatus.CREATED); //Http status code
+        Producto productoNuevo = null;
+        Map<String, Object> response = new HashMap<>();
+        try {
+            service.guardarProducto(producto);
+        }catch (DataAccessException e){
+            response.put("mensaje", "Error al realizar el insert en la base de datos");
+            response.put("error", e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        response.put("mensaje", "El producto ".concat(producto.getNombre()).concat(" ha sido creado con éxito"));
+        response.put("producto", producto);
+        return new ResponseEntity<Map<String,Object>>(response,HttpStatus.CREATED); //Http status code
     }
 
     @GetMapping("/buscar/{id}") //Http Method GET
     public ResponseEntity<?> buscar(@PathVariable Integer id) {
-        Producto producto=service.obtenerProductisPorId(id);
-        if(producto!=null) {
-            return new ResponseEntity<>(producto,HttpStatus.OK); //Http status code
+        Producto producto = null;
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            producto = service.obtenerProductisPorId(id);
+        } catch (DataAccessException e) {
+            response.put("mensaje", "Error al realizar la consulta en la base de datos");
+            response.put("error", e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return new ResponseEntity<Void>(HttpStatus.NOT_FOUND); //Http status code
+
+        if (producto == null) {
+            response.put("mensaje", "El producto con el ID: ".concat(id.toString()).concat(" no existe en la base de datos!"));
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<Producto>(producto, HttpStatus.OK);
     }
+
 
     @DeleteMapping("/borrar/{id}") //Http Method DELETE
     public ResponseEntity<?> borrar(@PathVariable Integer id)
     {
-        Producto producto=service.obtenerProductisPorId(id);
+        Map<String, Object> response = new HashMap<>();
+        try {
+            Producto producto = service.obtenerProductisPorId(id);
+             service.eliminarProducto(id);
 
-        if(producto!=null) {
-            service.eliminarProducto(id);
-            return new ResponseEntity<Void>(HttpStatus.OK); //Http status code
+        } catch (DataAccessException e) {
+            response.put("mensaje", "Error al eliminar, el producto con el id " + id.toString() + " no existe en  la base de datos");
+            response.put("error", e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+
         }
-        return new ResponseEntity<Void>(HttpStatus.NOT_FOUND); //Http status code
+        response.put("mensaje", "Producto eliminado con éxito!");
+        return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
+
     }
 
     @PutMapping("/editar/{productoId}") //Http Method PUT
     public ResponseEntity<?> editar(@PathVariable Integer productoId, @RequestBody Producto newProducto) {
         Producto productoActual=service.obtenerProductisPorId(productoId);
-        if(productoActual!=null) {
+        Map<String, Object> response = new HashMap<>();
+        if (productoActual == null) {
+            response.put("mensaje", "Error: no se pudo editar,  el producto con el id: ".concat(productoId.toString()).concat("  no existe en la base de datos"));
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
+        }
+        try {
             productoActual.setNombre(newProducto.getNombre());
             productoActual.setNombre(newProducto.getNombre());
             productoActual.setDescripcion(newProducto.getDescripcion());
             productoActual.setPrecio(newProducto.getPrecio());
             productoActual.setStock(newProducto.getStock());
             service.guardarProducto(productoActual);
-            return new ResponseEntity<Producto>(productoActual,HttpStatus.OK); //Http status code
+        }catch (DataAccessException e){
+            response.put("mensaje", "Error al actualizar el producto  la base de datos");
+            response.put("error", e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return new ResponseEntity<Void>(HttpStatus.NOT_FOUND); //Http status code
+        response.put("mensaje", "Producto " + productoActual.getNombre() + " actualizado con éxito");
+        response.put("producto: ", productoActual);
+        return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
+
     }
 
 }
