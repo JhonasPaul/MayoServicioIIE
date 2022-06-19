@@ -27,9 +27,9 @@ public class ItemController {
 
     @PostMapping("/items")
     @ResponseStatus(HttpStatus.CREATED)
-    public Item create(@RequestBody Item cliente) {
-        this.service.guardarItem(cliente);
-        return cliente;
+    public Item create(@RequestBody Item item) {
+        this.service.guardarItem(item);
+        return item;
     }
 
     @PutMapping("/items/{id}")

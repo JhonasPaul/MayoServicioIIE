@@ -15,25 +15,25 @@ public class ProovedorController {
     @Autowired
     private ProveedorServiceImpl service;
 
-    @GetMapping("/proovedor")
+    @GetMapping("/proveedor")
     public List<Proveedor> index() {
         return service.listarProovedor();
     }
 
 
-    @GetMapping("/proovedor/{id}")
+    @GetMapping("/proveedor/{id}")
     public Proveedor show(@PathVariable Integer id) {
         return this.service.obtenerProovedorPorId(id);
     }
 
-    @PostMapping("/proovedor")
+    @PostMapping("/proveedor")
     @ResponseStatus(HttpStatus.CREATED)
     public Proveedor create(@RequestBody Proveedor cliente) {
         this.service.guardarProovedor(cliente);
         return cliente;
     }
 
-    @PutMapping("/proovedor/{id}")
+    @PutMapping("/proveedor/{id}")
     @ResponseStatus(HttpStatus.CREATED)
     public Proveedor update(@RequestBody Proveedor cliente, @PathVariable Integer id) {
         Proveedor clienteActual = this.service.obtenerProovedorPorId(id);
@@ -43,7 +43,7 @@ public class ProovedorController {
         return clienteActual;
     }
 
-    @DeleteMapping("/proovedor/{id}")
+    @DeleteMapping("/proveedor/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Integer id) {
         Proveedor clienteActual = this.service.obtenerProovedorPorId(id);

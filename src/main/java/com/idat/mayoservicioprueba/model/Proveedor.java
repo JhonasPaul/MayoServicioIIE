@@ -1,14 +1,22 @@
 package com.idat.mayoservicioprueba.model;
 
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
 import java.io.Serializable;
 
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
-@Table(name = "proovedores")
+@Table(name = "proveedores")
 public class Proveedor implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -16,34 +24,14 @@ public class Proveedor implements Serializable {
     private String proveedor;
     private String direccion;
 
+
+    @JsonIgnoreProperties({"proveedor"})
     @OneToOne
-    @JoinColumn(name = "id_producto", nullable = false, unique = true/*,
-    foreignKey = @ForeignKey(foreignKeyDefinition = "foreign key(id_producto references productos(id_producto)")*/)
-    private Producto producto;
+    @JoinColumn(name = "id_producto",
+            nullable = false,
+            unique = true)
+    private Producto productos;
 
-    public Integer getIdProvedor() {
-        return idProvedor;
-    }
-
-    public void setIdProvedor(Integer idProvedor) {
-        this.idProvedor = idProvedor;
-    }
-
-    public String getProveedor() {
-        return proveedor;
-    }
-
-    public void setProveedor(String proveedor) {
-        this.proveedor = proveedor;
-    }
-
-    public String getDireccion() {
-        return direccion;
-    }
-
-    public void setDireccion(String direccion) {
-        this.direccion = direccion;
-    }
 
     private static final long serialVersionUID = 1L;
 }

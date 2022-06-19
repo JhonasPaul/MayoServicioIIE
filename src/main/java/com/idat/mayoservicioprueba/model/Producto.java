@@ -1,5 +1,9 @@
 package com.idat.mayoservicioprueba.model;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
@@ -7,6 +11,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+
+@NoArgsConstructor
+@AllArgsConstructor
 @Getter
 @Setter
 @Entity
@@ -14,39 +21,42 @@ import java.util.List;
 public class Producto implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    @Column(name = "id_producto")
+    private Integer id;
     private String nombre;
     private String descripcion;
     private double precio;
     private int stock;
 
-    @OneToOne(mappedBy = "producto")
+
+    @OneToOne(mappedBy = "productos")
     private Proveedor proveedor;
 
+    @JsonIgnoreProperties({"productos"})
     @ManyToMany(cascade = CascadeType.MERGE)
-    @JoinTable(
-           /* name = "productos_clientes",
+   @JoinTable(
+            name = "productos_clientes",
             joinColumns = @JoinColumn(
                     name = "id_producto",
                     nullable = false,
-                    unique = true, foreignKey = @ForeignKey(foreignKeyDefinition = "foreign key (id_producto) references productos(id_producto)")
+                    unique = true
+
             ),
             inverseJoinColumns = @JoinColumn(
                     name = "id_cliente",
                     nullable = false,
-                    unique = true,
-                    foreignKey = @ForeignKey(foreignKeyDefinition = "foreign key (id_cliente) references clientes(id_cliente)")
-            )*/
+                    unique = true
+            )
 
-            name = "productos_clientes",
-                    joinColumns=@JoinColumn(name = "id_producto",
-                            nullable = false,
-                            unique = true),
-                            inverseJoinColumns = @JoinColumn(name = "id_cliente",
-                            nullable = false,
-                            unique = true)
     )
     private List<Cliente>clientes = new ArrayList<>();
+
+    public Producto(int id) {
+        this.id = id;
+    }
+
+
+
 
     /*@JoinColumn agrega un campo en la tabla hijo
     * @Jointable agrega la tercera tabla de una relacion muchos a muchos.
