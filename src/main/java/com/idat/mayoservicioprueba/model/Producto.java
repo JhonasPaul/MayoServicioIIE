@@ -56,8 +56,6 @@ public class Producto implements Serializable {
     }
 
 
-
-
     /*@JoinColumn agrega un campo en la tabla hijo
     * @Jointable agrega la tercera tabla de una relacion muchos a muchos.
     * Cuando la relacion es de unoa u no o mcuhos muchos, el mappedBy puede ir en cualquier clase*/
